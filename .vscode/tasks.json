@@ -1,0 +1,33 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Conan: build",
+            "type": "shell",
+            "command": "bash",
+            "windows": {
+                "command": "C:\\Program Files\\Git\\bin\\bash.exe"
+            },
+            "args": [
+                "build.sh",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "CPack: create a source package",
+            "type": "shell",
+            "command": "cpack -G ZIP",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

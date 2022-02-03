@@ -1,0 +1,72 @@
+include(default)
+
+{% set compiler = os.getenv("Compiler") %}
+
+{% if compiler == 'apple-clang' %}
+{% set version = os.getenv("Version") or "12.0" %}
+{% elif compiler == 'clang' %}
+{% set version = os.getenv("Version") or "12" %}
+{% elif compiler == 'gcc' %}
+{% set version = os.getenv("Version") or "10" %}
+{% elif compiler == 'Visual Studio' %}
+{% set version = os.getenv("Version") or "16" %}
+{% endif %}
+
+{% set arch_target = os.getenv("Arch") or "x86_64" %}
+{% set build_type = os.getenv("BuildType") or "Debug" %}
+
+{% set coverage = os.getenv("Coverage") or False %}
+
+{% if platform.system() == "Windows" %}
+{% set toolset = os.getenv("Toolset") or "v142" %}
+{% set runtime = os.getenv("Runtime") or "MTd" %}
+
+{% if compiler == 'clang' %}
+{% set flags = '-Wno-unused-command-line-argument -Wno-microsoft-enum-value' %}
+{% endif %}
+
+{% endif %}
+
+
+[settings]
+arch_target={{ arch_target }}
+build_type={{ build_type }}
+compiler={{ compiler }}
+compiler.version={{ version }}
+compiler.cppstd=17
+
+{% if compiler == 'apple-clang' %}
+compiler.libcxx=libc++
+{% elif compiler != 'Visual Studio' %}
+compiler.libcxx=libstdc++11
+{% endif %}
+
+{% if platform.system() == "Windows" %}
+{% if compiler == 'clang' %}
+compiler.runtime={{ runtime }}
+{% elif compiler == 'Visual Studio' %}
+compiler.toolset={{ toolset }}
+compiler.runtime={{ runtime }}
+{% endif %}
+{% endif %}
+
+
+[env]
+{% if compiler == 'clang' and platform.system() == "Windows" %}
+CC="C:/Program Files/LLVM/bin/clang"
+CXX="C:/Program Files/LLVM/bin/clang++"
+{% elif compiler == 'clang' %}
+CC=clang-{{ version }}
+CXX=clang++-{{ version }}
+{% elif compiler == 'apple-clang' %}
+CC=clang
+CXX=clang++
+{% elif compiler == 'gcc' %}
+CC=gcc-{{ version }}
+CXX=g++-{{ version }}
+{% endif %}
+
+{% if coverage %}
+CFLAGS=--coverage {{ flags }}
+CXXFLAGS=--coverage {{ flags }}
+{% endif %}
